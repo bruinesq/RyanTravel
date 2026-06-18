@@ -993,3 +993,42 @@ input:focus, select:focus, textarea:focus {
   color: #888;
   margin-top: 4px;
 }
+
+/* ===== CANCEL BUTTONS ON INLINE PANELS ===== */
+.calc-btn.cancel-btn {
+  background: #f5e8d0;
+  color: #c0392b;
+  border-color: #f5c6c6;
+  font-size: 0.9rem;
+  grid-column: span 3;
+  width: 100%;
+}
+.date-cancel-btn {
+  width: 100%;
+  margin-top: 10px;
+  background: #f5e8d0;
+  color: #c0392b;
+  border: 2px solid #f5c6c6;
+  border-radius: 9px;
+  padding: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ===== DELETE TRIP BUTTON ===== */
+.trip-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.delete-trip-btn {
+  background: none;
+  color: #c0392b;
+  font-size: 1.1rem;
+  padding: 2px 4px;
+  border-radius: 6px;
+  line-height: 1;
+  opacity: 0.7;
+}
+.delete-trip-btn:active { opacity: 1; }

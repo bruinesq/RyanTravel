@@ -1,28 +1,25 @@
-# Group Travel Expense Tracker
+# RyanTravel
 
-A mobile-optimized React application for tracking shared travel expenses.
+A mobile-optimized group travel expense tracker built for iPhone and iPad.
+
+**Live app:** https://bruinesq.github.io/RyanTravel/
+
+---
 
 ## Features
 
-✅ Create trips and manage members
-✅ Track expenses with descriptions
-✅ Participant selection per expense
-✅ Smart settlement calculations
-✅ PDF export
-✅ iPhone optimized interface
+- Create trips with a date and member list
+- Enter expenses with category, payor, and per-person participants
+- Built-in calculator keypad (telephone-pad style) for amount entry
+- Color-coded expense list sortable by date, recency, or payor
+- Summary view with breakdowns by category, per person, and settlement calculations
+- PDF export of full trip summary
+- Delete trips and individual expenses
 
-## Quick Start
+## Tech Stack
 
-1. Clone this repo
-2. Run `npm install`
-3. Copy `.env.local.example` to `.env.local`
-4. Run `npm run dev`
-5. Open http://localhost:5173
+- **Frontend:** React 18 + Vite
+- **Backend:** Supabase (PostgreSQL)
+- **Deployment:** GitHub Pages via GitHub Actions
 
-## Setup
-
-- Database: Supabase PostgreSQL
-- Frontend: React + Vite
-- Export: jsPDF
-
-For detailed setup instructions, see the full README in the original repository documentation.
+## Repository Structure

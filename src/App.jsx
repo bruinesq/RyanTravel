@@ -23,7 +23,7 @@ function todayStr() { return new Date().toISOString().split('T')[0] }
 // INLINE CALCULATOR (telephone-pad style, renders below field)
 // Keys: 1-2-3 / 4-5-6 / 7-8-9 / C-0-⌫ / ops row / = row
 // ───────────────────────────────────────────────────────────────
-function InlineCalc({ initial, onConfirm }) {
+function InlineCalc({ initial, onConfirm, onCancel }) {
   const [display, setDisplay] = useState(initial ? String(initial) : '0')
   const [expr, setExpr]       = useState(initial ? String(initial) : '')
   const [fresh, setFresh]     = useState(!initial)
@@ -88,6 +88,9 @@ function InlineCalc({ initial, onConfirm }) {
               }}
             >Use</button>
           </div>
+          <div className="calc-row">
+            <button className="calc-btn cancel-btn" onClick={onCancel} style={{gridColumn:'span 3'}}>Cancel</button>
+          </div>
         </div>
         <div className="calc-ops-col">
           {ops.map(k => (
@@ -102,7 +105,7 @@ function InlineCalc({ initial, onConfirm }) {
 // ───────────────────────────────────────────────────────────────
 // INLINE DATE PICKER (renders below field, auto-confirms on change)
 // ───────────────────────────────────────────────────────────────
-function InlineDatePicker({ initial, onConfirm }) {
+function InlineDatePicker({ initial, onConfirm, onCancel }) {
   const ref = useRef()
   useEffect(() => {
     // Auto-open the native date picker on mount
@@ -120,6 +123,7 @@ function InlineDatePicker({ initial, onConfirm }) {
         max={todayStr()}
         onChange={e => { if (e.target.value) onConfirm(e.target.value) }}
       />
+      <button className="date-cancel-btn" onClick={onCancel}>Cancel</button>
     </div>
   )
 }
@@ -382,6 +386,7 @@ function ExpenseFormScreen({ trip, members, expense, onSave, onCancel }) {
           <InlineDatePicker
             initial={date}
             onConfirm={v => { setDate(v); setActivePanel(null) }}
+            onCancel={() => setActivePanel(null)}
           />
         )}
 
@@ -390,6 +395,7 @@ function ExpenseFormScreen({ trip, members, expense, onSave, onCancel }) {
           <InlineCalc
             initial={amount}
             onConfirm={v => { setAmount(v.toString()); setActivePanel(null) }}
+            onCancel={() => setActivePanel(null)}
           />
         )}
 
@@ -674,7 +680,7 @@ function SummaryScreen({ trip, expenses, members }) {
 // ───────────────────────────────────────────────────────────────
 // HOME SCREEN — chevron on trip selector
 // ───────────────────────────────────────────────────────────────
-function HomeScreen({ trips, currentTrip, members, expenses, onSelectTrip, onEnterExpense, onEditMembers }) {
+function HomeScreen({ trips, currentTrip, members, expenses, onSelectTrip, onEnterExpense, onEditMembers, onDeleteTrip }) {
   return (
     <div className="screen-content">
       <div className="home-screen">
@@ -699,9 +705,12 @@ function HomeScreen({ trips, currentTrip, members, expenses, onSelectTrip, onEnt
           <div className="trip-card">
             <div className="trip-header">
               <div className="trip-name">{currentTrip.name}</div>
-              {currentTrip.trip_date && (
-                <div className="trip-date-badge">{fmtDate(currentTrip.trip_date)}</div>
-              )}
+              <div className="trip-header-actions">
+                {currentTrip.trip_date && (
+                  <div className="trip-date-badge">{fmtDate(currentTrip.trip_date)}</div>
+                )}
+                <button className="delete-trip-btn" onClick={onDeleteTrip} title="Delete trip">🗑</button>
+              </div>
             </div>
             <div className="trip-stats">
               <div className="stat-box">
@@ -804,6 +813,17 @@ export default function App() {
     loadExpenses(currentTripId)
   }
 
+  async function handleDeleteTrip() {
+    if (!currentTripId) return
+    const tripName = currentTrip?.name || 'this trip'
+    if (!window.confirm(`Delete "${tripName}" and all its expenses? This cannot be undone.`)) return
+    // Cascade deletes handle expense_participants and trip_members via FK
+    await supabase.from('expenses').delete().eq('trip_id', currentTripId)
+    await supabase.from('trip_members').delete().eq('trip_id', currentTripId)
+    await supabase.from('trips').delete().eq('id', currentTripId)
+    await loadTrips()
+  }
+
   function handleExpenseSaved() {
     setShowExpenseForm(false); setEditingExpense(null)
     loadExpenses(currentTripId); setActiveTab('expenses')
@@ -839,6 +859,7 @@ export default function App() {
           onSelectTrip={handleSelectTrip}
           onEnterExpense={() => { setEditingExpense(null); setShowExpenseForm(true) }}
           onEditMembers={() => setShowEditMembers(true)}
+          onDeleteTrip={handleDeleteTrip}
         />
       ) : activeTab === 'expenses' ? (
         <ExpensesScreen expenses={expenses}
